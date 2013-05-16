@@ -1,20 +1,28 @@
 (function() {
    var b2Vec2         = Box2D.Common.Math.b2Vec2; // ベクトル
-   var b2Transform    = Box2D.Common.Math.b2Transform;
-   var b2Mat22        = Box2D.Common.Math.b2Mat22;
-   var b2AABB         = Box2D.Collision.b2AABB;
    var b2BodyDef      = Box2D.Dynamics.b2BodyDef;
    var b2Body         = Box2D.Dynamics.b2Body;
    var b2FixtureDef   = Box2D.Dynamics.b2FixtureDef;
    var b2Fixture      = Box2D.Dynamics.b2Fixture;
    var b2World        = Box2D.Dynamics.b2World;
-   var b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef;
-   var b2MassData     = Box2D.Collision.Shapes.b2MassData;
    var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
    var b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape;
    var b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 
 
+   var b2Settings         = Box2D.Common.b2Settings;
+   var b2Transform        = Box2D.Common.Math.b2Transform;
+   var b2Mat22            = Box2D.Common.Math.b2Mat22;
+   var b2AABB             = Box2D.Collision.b2AABB;
+   var b2MassData         = Box2D.Collision.Shapes.b2MassData;
+   var b2FilterData       = Box2D.Dynamics.b2FilterData;
+   var b2DistanceJointDef = Box2D.Dynamics.Joints.b2DistanceJointDef;
+   var b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
+   var b2MouseJointDef    = Box2D.Dynamics.Joints.b2MouseJointDef;
+
+
+   var b2ContactListener     = Box2D.Dynamics.b2ContactListener;
+   var b2DestructionListener = Box2D.Dynamics.b2DestructionListener;
 
 
 
@@ -26,8 +34,6 @@
       //    alert("goodbye fixture ...");
       // }
       // world.SetDestructionListener(myListener);
-
-      var birdBMP = new createjs.Bitmap("images/bird.png");
 
       // worldを作成
       var world = new b2World(
@@ -68,6 +74,8 @@
 
       // 物体作成
       function makeBody(x, y) {
+         fixDef.filter = new b2FilterData(); // Filterは衝突するオブジェクトを分類。正数のグループは衝突あり、負数はなし。
+         // fixDef.filter.groupIndex = -2;   // 
          /*if (Math.random() > 0.5) {              //50%の確率で箱か円を作るかを分岐
 
             fixDef.shape = new b2PolygonShape;  //Box2D.Collision.Shapes.b2PolygonShape(ポリゴン)を作成
@@ -103,33 +111,39 @@
             //    new b2Vec2(Math.random(), Math.random()+2)
             // ], 3);
          }*/
-
-
-
-         bodyDef.position.x = x;                 //作成x座標
-         bodyDef.position.y = y;                 //作成y座標
+         // bodyDef.type = b2Body.b2_kinematicBody;
+         // bodyDef.fixedRotation = true;
+         bodyDef.position.Set(x, y);
+         // bodyDef.position.x = x;                 //作成x座標
+         // bodyDef.position.y = y;                 //作成y座標
          // world.CreateBody(bodyDef).CreateFixture(fixDef); //worldに以上の物体を作成
-         var testBody = world.CreateBody(bodyDef);
-         // testBody.SetAngle(10);
-         // testBody.SetAngularVelocity(10);
-         // testBody.SetLinearDamping(0.4); 
-         // testBody.SetLinearVelocity(new b2Vec2(Math.random()-0.5, -10));
-
+         var testBody01 = world.CreateBody(bodyDef);
+         // testBody01.SetAngle(10);
+         // testBody01.SetAngularVelocity(10);
+         // testBody01.SetLinearDamping(0.4); 
+         // testBody01.SetLinearVelocity(new b2Vec2(Math.random()-0.5, -10));
+         fixDef.density = 10.0; 
          fixDef.shape = new b2PolygonShape;  //Box2D.Collision.Shapes.b2PolygonShape(ポリゴン)を作成
          fixDef.shape.SetAsArray([
              new b2Vec2(0, -1),
              new b2Vec2(0, 0),
-             new b2Vec2(-1, 1)
+             new b2Vec2(-1, 0.25)
          ], 3);
-         testBody.CreateFixture(fixDef);
+         testBody01.CreateFixture(fixDef);
 
+
+         // bodyDef.type = b2Body.b2_staticBody;
+         // bodyDef.position.Set(x+0.1, y);  
+         // var testBody02 = world.CreateBody(bodyDef);
+         fixDef.density = 1.0;
          fixDef.shape = new b2PolygonShape;  //Box2D.Collision.Shapes.b2PolygonShape(ポリゴン)を作成
          fixDef.shape.SetAsArray([
              new b2Vec2(0, -1),
-             new b2Vec2(1, 1),
+             new b2Vec2(1, 0.25),
              new b2Vec2(0, 0)
          ], 3);
-         testBody.CreateFixture(fixDef);
+         testBody01.CreateFixture(fixDef);
+
          // testBody.SetTransform(
          //    new b2Transform(
          //       new b2Vec2(12, 1),
@@ -139,7 +153,42 @@
          //       )
          //    )
          // );
-         console.log(testBody.GetMass());
+
+         // testBody.SetLinearVelocity(new b2Vec2( 1, 0 ))
+         
+
+         //ジョイントのテスト
+         var groundBody = world.GetGroundBody();
+
+         // console.log(testBody02.GetLocalCenter());
+         // Joints のテスト
+         // var dJointDef = new b2DistanceJointDef();
+         // dJointDef.collideConnected = true;
+         // dJointDef.dampingRatio = 1;
+         // dJointDef.Initialize(
+         //    groundBody,
+         //    testBody01,
+         //    new b2Vec2(6, 1),
+         //    new b2Vec2(x, y)
+         //    // testBody01.GetWorldCenter()
+         // );
+         // var dJoint = world.CreateJoint(dJointDef);
+
+         // var rJointDef = new b2RevoluteJointDef();
+         // rJointDef.Initialize(
+         //    groundBody,
+         //    testBody01,
+         //    // groundBody.GetWorldCenter()
+         //   new b2Vec2(x, y+Math.random()*1)
+         // );
+         // rJointDef.lowerAngle     = -0.5 * b2Settings.b2_pi; // -90 degrees
+         // rJointDef.upperAngle     = 0.25 * b2Settings.b2_pi; // 45 degrees
+         // rJointDef.enableLimit    = false;
+         // rJointDef.maxMotorTorque = 120.0;
+         // rJointDef.motorSpeed     = 100.0;
+         // rJointDef.enableMotor    = true;
+
+         // var rJoint = world.CreateJoint(rJointDef);
       }
 
       // いくつかの物体を作成
@@ -148,13 +197,28 @@
          makeBody(Math.random() * 16, Math.random() * 10);
       }
 
+
+      // Contactのテスト
+      var myListener = new b2ContactListener();
+      myListener.BeginContact = function(){
+         //console.log('begin');
+      };
+      myListener.EndContact = function(){
+         //console.log('end');
+      };
+      world.SetContactListener(myListener);
+      // myListener.EndContact();
+      // myListener.PostSolve();
+      // myListener.PreSolve();
+
+
       // debug用表示の設定
       var debugDraw = new b2DebugDraw();          //Box2D.Dynamics.b2DebugDraw
       debugDraw.SetSprite(document.getElementById('debugCanvas').getContext('2d')); //canvas 2dのcontextを設定
       debugDraw.SetDrawScale(physScale);          //表示のスケール(1メートル、何pixelか?)
       debugDraw.SetFillAlpha(0.5);                //塗りつぶし透明度を0.5に
       debugDraw.SetLineThickness(1.0);            //lineの太さを1.0に
-      debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit); //シェイプとジョイントを表示、他に
+      debugDraw.SetFlags(b2DebugDraw.e_aabbBit | b2DebugDraw.e_pairBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit); //シェイプとジョイントを表示、他に
       //e_aabbBit,e_pairBit,e_centerOfMassBit,e_controllerBitを設定可能
       world.SetDebugDraw(debugDraw);              //worldにdebug用表示の設定
 
@@ -221,7 +285,7 @@
                md.bodyB = body;                //発見したボディ
                md.target.Set(mouseX, mouseY);  //ターゲットの位置はマウスカーソル
                md.collideConnected = true;     //衝突つきの拘束か
-               md.maxForce = 150.0 * body.GetMass(); //ボディの重さ(body.GetMass())*300の力で引っ張る
+               md.maxForce = 300.0 * body.GetMass(); //ボディの重さ(body.GetMass())*300の力で引っ張る
                mouseJoint = world.CreateJoint(md); //worldにjointを設定
                body.SetAwake(true);            //ボディの計算を起動(sleep状態の解除)
             } else {
@@ -229,6 +293,7 @@
                   makeBody(mouseX, mouseY);       //物体か無ければ新しく作成
             }
          }
+
 
          if (mouseJoint) {                       //mouseはボディに拘束されている
             if (isMouseDown) {                  //ボタンを押し下げ中
@@ -240,8 +305,8 @@
          }
 
          world.Step(1 / 60, 10, 10);             //worldの更新、経過時間1/60、速度計算の内部繰り返し回数10、位置計算の内部繰り返し回数10
-         world.DrawDebugData();                  //debug表示を行う
          world.ClearForces();                    //全Step関数実行後に通常呼び出す関数
+         world.DrawDebugData();                  //debug表示を行う
       };
 
 
