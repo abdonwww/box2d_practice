@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link href='http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700' rel='stylesheet' type='text/css'>
 	<script src="./src/js/jquery-1.7.1.min.js"></script>
+	<script src="./src/js/raphael-min.js"></script>
 	<script src="./src/js/Box2dWeb-2.1.a.3.min.js"></script>
 	<script src="./src/js/preloadjs-0.3.0.min.js"></script>
 	<script src="./src/js/easeljs-0.6.0.min.js"></script>
 	<script src="./src/js/tweenjs-0.4.0.min.js"></script>
 	<script src="./src/js/MovieClip.js"></script>
-	<script src="./src/js/AlphaMapFilter.js"></script>
-	<script src="./src/js/AlphaMaskFilter.js"></script>
+	<!-- <script src="./src/js/AlphaMapFilter.js"></script>
+	<script src="./src/js/AlphaMaskFilter.js"></script> -->
 	<script src="./src/js/BoxBlurFilter.js"></script>
-	<script src="./src/js/ColorFilter.js"></script>
+	<!-- <script src="./src/js/ColorFilter.js"></script>
 	<script src="./src/js/ColorMatrix.js"></script>
 	<script src="./src/js/ColorMatrixFilter.js"></script>
-	<script src="./src/js/Log.js"></script>
+	<script src="./src/js/Log.js"></script>-->
 	<style type="text/css">
 		* { margin:0; padding:0; vertical-align:bottom; }
+		body { font-family: 'Merriweather Sans', sans-serif; overflow:hidden; /*cursor:none;*/ }
 		#debugCanvas { position:absolute; left:0; top:0; }
-		canvas { cursor:none; }
+		#logo {
+			position:absolute;
+			left:50%;
+			top:50%;
+			margin: -168px 0 0 -500px;
+			-webkit-transition-property: width, height, margin, rotate;
+			-webkit-transition-duration: 2s;
+			-webkit-transition-timing-function: ease-in-out;
+		}
+		#logo.zoomup {
+			width: 40000px;
+			height: 13440px;
+			margin: -6220px 0 0 -20000px;
+			-webkit-transform:rotate(180deg);
+		}
 	</style>
 </head>
 <body>
@@ -27,6 +44,7 @@
 	<canvas id="debugCanvas" width="1000" height="500">
 		alternate content
 	</canvas>
+	<object id="logo" data="./src/img/logo.svg" type="image/svg+xml" width="1000" height="336" />
 	<script src="./src/init.js"></script>
 </body>
 </html>
