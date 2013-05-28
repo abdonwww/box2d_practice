@@ -1,50 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link href='http://fonts.googleapis.com/css?family=Merriweather+Sans:400,700' rel='stylesheet' type='text/css'>
 	<script src="./src/js/jquery-1.7.1.min.js"></script>
-	<script src="./src/js/raphael-min.js"></script>
 	<script src="./src/js/Box2dWeb-2.1.a.3.min.js"></script>
 	<script src="./src/js/preloadjs-0.3.0.min.js"></script>
 	<script src="./src/js/easeljs-0.6.0.min.js"></script>
 	<script src="./src/js/tweenjs-0.4.0.min.js"></script>
 	<script src="./src/js/MovieClip.js"></script>
-	<!-- <script src="./src/js/AlphaMapFilter.js"></script>
-	<script src="./src/js/AlphaMaskFilter.js"></script> -->
+	<script src="./src/js/AlphaMapFilter.js"></script>
+	<script src="./src/js/AlphaMaskFilter.js"></script>
 	<script src="./src/js/BoxBlurFilter.js"></script>
-	<!-- <script src="./src/js/ColorFilter.js"></script>
+	<script src="./src/js/ColorFilter.js"></script>
 	<script src="./src/js/ColorMatrix.js"></script>
 	<script src="./src/js/ColorMatrixFilter.js"></script>
-	<script src="./src/js/Log.js"></script>-->
-	<style type="text/css">
-		* { margin:0; padding:0; vertical-align:bottom; }
-		body { font-family: 'Merriweather Sans', sans-serif; overflow:hidden; /*cursor:none;*/ }
-		#debugCanvas { position:absolute; left:0; top:0; }
-		#logo {
-			position:absolute;
-			left:50%;
-			top:50%;
-			margin: -168px 0 0 -500px;
-			-webkit-transition-property: width, height, margin, rotate;
-			-webkit-transition-duration: 2s;
-			-webkit-transition-timing-function: ease-in-out;
+	<script>
+		var stage, circle, text, mc;
+		function init() {
+			return;
+			 // createjs.Log.log("test");
+
+			 stage = new createjs.Stage("canvas");
+
+			 /*
+			 createjs.Ticker.addEventListener("tick", stage);
+
+			 var mc = new createjs.MovieClip(null, 0, true, {start:20});
+			 stage.addChild(mc);
+
+			 var child1 = new createjs.Shape(new createjs.Graphics().beginFill("#999999").drawCircle(30,30,30));
+			 child1.shadow = new createjs.Shadow("#000000", 5, 5, 10);
+			 var child2 = new createjs.Shape(new createjs.Graphics().beginFill("#5a9cfb").drawCircle(30,30,30));
+			 child2.shadow = new createjs.Shadow("#000000", 5, 5, 10);
+
+			 mc.timeline.addTween(createjs.Tween.get(child1).to({x:0}).to({x:60}, 50).to({x:0}, 50));
+			 mc.timeline.addTween(createjs.Tween.get(child2).to({x:60}).to({x:0}, 50).to({x:60}, 50));
+
+			 mc.gotoAndPlay("start");
+			 */
+
+			
+			 var shape = new createjs.Shape().set({x:100,y:100});
+			 shape.graphics.beginFill("#ff0000").drawCircle(0,0,50);
+
+			 var box = new createjs.Shape();
+			 box.graphics.beginLinearGradientFill(["#000000", "rgba(0, 0, 0, 0)"], [0, 1], 0, 0, 100, 100)
+			 box.graphics.drawRect(0, 0, 100, 100);
+			 box.cache(0, 0, 100, 100);
+
+			 var matrix = new createjs.ColorMatrix().adjustHue(180).adjustSaturation(100);
+
+			 var blurFilter = new createjs.BoxBlurFilter(10, 10, 1);
+			 shape.filters = [
+			 	//new createjs.ColorMatrixFilter(matrix),
+			 	//new createjs.ColorFilter(0,0,0,1, 0,0,255,0),
+			 	// new createjs.AlphaMaskFilter(box.cacheCanvas),
+			 	new createjs.AlphaMapFilter(box.cacheCanvas)
+			 	// blurFilter
+			 ];
+			 var bounds = blurFilter.getBounds();
+
+			 shape.cache(-50+bounds.x, -50+bounds.y, 100+bounds.width, 100+bounds.height);
+
+			 stage.addChild(shape);
+
+			 stage.update();
+			 
 		}
-		#logo.zoomup {
-			width: 40000px;
-			height: 13440px;
-			margin: -6220px 0 0 -20000px;
-			-webkit-transform:rotate(180deg);
-		}
-	</style>
+	</script>
 </head>
-<body>
-	<canvas id="drawCanvas" width="1000" height="500">
+<body onLoad="init();">
+	<canvas id="drawCanvas" width="500" height="500">
 		alternate content
 	</canvas>
-	<canvas id="debugCanvas" width="1000" height="500">
+	<canvas id="debugCanvas" width="500" height="500">
 		alternate content
 	</canvas>
-	<object id="logo" data="./src/img/logo.svg" type="image/svg+xml" width="1000" height="336" />
-	<script src="./src/init.js"></script>
+	<script src="./src/main.js"></script>
 </body>
 </html>

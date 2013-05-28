@@ -390,6 +390,10 @@ SceneManager.prototype = {
 
     },
     scene: [
+        // Scene 0
+        function(){
+            alert('ready');
+        },
 
         // Scene 1
         function(){
